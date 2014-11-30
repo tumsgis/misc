@@ -46,14 +46,14 @@ def rec_acker(m, n):
 
 
 
-# Iterative, bottom up dynamic programming (caching) style implementation
+# Iterative, "dynamic programming style" implementation
 
 # In on of the cases of the ackermann function we get
 # A(m-1, A(m, n-1)).
 # So, in that case, we store the m-1 value, while we calculate the A(m, n-1)
 # part.
 
-def bu_acker(m, n):
+def dyn_acker(m, n):
 
     # quick cases
     if m == 0:
@@ -66,11 +66,10 @@ def bu_acker(m, n):
     seq = {}        # sequences of the same number (the idea comes from compression)
     seq_index = -1         # sequence index
 
-    hi_value_waiting = 0
-
     func_to_calc = ()
 
     while True:
+        
         if func_to_calc:
             m = func_to_calc[0]
             n = func_to_calc[1]
@@ -81,15 +80,21 @@ def bu_acker(m, n):
             n = 1
 
         elif m > 0 and n > 0:       # A(m-1, A(m, n-1)) if m > 0 and n > 0
+
             new_m = m - 1
-            if new_m != top_func:
+
+            if m == 1:
+                func_to_calc = (0, n+1)
+            elif new_m != top_func:
                 seq_index += 1
                 seq[seq_index] = 1
                 waiting_funcs.append(new_m)
                 top_func = new_m
+                func_to_calc = (m, n-1)
             else :
                 seq[seq_index] += 1
-            func_to_calc = (m, n-1)
+                func_to_calc = (m, n-1)
+
 
         elif m == 0:                # n+1 if m = 0
             if not waiting_funcs:
@@ -115,7 +120,7 @@ def main():
 
     d_funcCalls = {
         'rec_acker' : rec_acker,
-        'bu_acker' : bu_acker
+        'dyn_acker' : dyn_acker
     }
     
     (funcName, m, n) = _args
@@ -131,3 +136,14 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+# $ time python ackermann.py dyn_acker 4 1
+# 65533
+
+# real    0m0.144s
+# user    0m0.132s
+# sys     0m0.008s
